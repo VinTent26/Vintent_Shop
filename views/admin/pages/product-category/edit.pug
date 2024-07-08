@@ -3,10 +3,9 @@ include ../../mixins/alert.pug
 include ../../mixins/select-tree.pug
 block main 
     +alert-error(5000)
-    h1 Thêm mới sản phẩm
+    h1 Chỉnh sửa danh mục sản phẩm
     form(
-        action=`${prefixAdmin}/products/create`
-        id="form-create-product"
+        action=`${prefixAdmin}/products-category/edit/${data.id}?_method=PATCH`
         method="POST"
         enctype="multipart/form-data"
         ) 
@@ -18,17 +17,24 @@ block main
                 id="title"
                 name="title"
                 required
+                value=data.title
                 ) 
         div(class="form-group")
-            label(for="product_category_id") Danh mục 
+            label(for="product_category_id") Danh mục cha
+            //- input(
+            //-     type="text"
+            //-     class="form-control"
+            //-     id="parent_id"
+            //-     name="parent_id"
+            //-     ) 
             select(
                 name="product_category_id"
                 id="product_category_id"
                 class="form-control"
                 ) 
                 option(value="") -- Chọn danh mục --
-                if(category) 
-                   +select-tree(category)
+                if(records) 
+                   +select-tree(records,1, data.parent_id)
         div(class="form-group")
             label(for="desc") Mô tả
             textarea(
@@ -36,37 +42,7 @@ block main
                 id="desc"
                 name="description"
                 rows="5"
-                ) 
-        div(class="form-group")
-            label(for="price") Giá
-            input(
-                type="number"
-                class="form-control"
-                id="price"
-                name="price"
-                value="0"
-                min="0"
-                ) 
-        div(class="form-group")
-            label(for="discount") % giảm giá
-            input(
-                type="number"
-                class="form-control"
-                id="discount"
-                name="discountPercentage"
-                value="0"
-                min="0"
-                ) 
-        div(class="form-group")
-            label(for="stock") Số lượng
-            input(
-                type="number"
-                class="form-control"
-                id="stock"
-                name="stock"
-                value="0"
-                min="0"
-                ) 
+                ) #{data.description}
         div(class="form-group" upload-image )
             label(for="thumbnail") Ảnh
             input(
@@ -77,7 +53,7 @@ block main
                 accept="image/*" 
                 upload-image-input
                 ) 
-            img(src="" upload-image-preview class="image-preview")
+            img(src=data.thumbnail upload-image-preview class="image-preview")
         div(class="form-group")
             label(for="position") Vị trí
             input(
@@ -87,6 +63,7 @@ block main
                 name="position"
                 placeholder="Tự động tăng"
                 min="1"
+                value=data.position
                 ) 
         div(class="form-group form-check form-check-inline ")
             input(
@@ -95,7 +72,7 @@ block main
                 id="statusActive"
                 name="status"
                 value="active"
-                checked
+                checked=(data.status == "active" ? true : false)
                 )
             label(for="statusActive" class="form-check-lable") Hoạt động
         div(class="form-group form-check form-check-inline ")
@@ -105,12 +82,13 @@ block main
                 id="statusInActive"
                 name="status"
                 value="inactive"
+                checked=(data.status == "inactive" ? true : false)
                 )
             label(for="statusInActive" class="form-check-lable") Dừng hoạt động
         div(class="form-group")
             button(
                 type="submit"
                 class="btn btn-primary"
-            ) Tạo mới
+            ) cập nhật
 
     script(src="/admin/js/product.js")
