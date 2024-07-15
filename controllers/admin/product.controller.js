@@ -5,6 +5,7 @@ const paginationHelper = require("../../helpers/pagination")
 const systemConfig = require("../../config/system")
 const createTreeHelper = require("../../helpers/createTree")
 const ProductCategory = require("../../models/product-category.model")
+const Account = require("../../models/account.model")
 //[GET] admin/products
 module.exports.index = async (req, res) => {
     // console.log(req.query.status);
@@ -43,6 +44,24 @@ module.exports.index = async (req, res) => {
         .skip(objectPagination.skip)
     // console.log(products);
 
+    for (const product of products) {
+        //lấy ra người tạo
+        const user = await Account.findOne({
+            _id: product.createdBy.account_id
+        })
+        if (user) {
+            product.accountFullName = user.fullName
+        }
+        //lấy ra người cập nhật gần nhất
+        const updatedBy = product.updatedBy[product.updatedBy.length - 1]
+        if (updatedBy) {
+            const userUpdated = await Account.findOne({
+                _id: updatedBy.account_id
+            })
+            updatedBy.accountFullName = userUpdated.fullName
+        }
+
+    }
     res.render("admin/pages/products/index", {
         pageTitle: "danh sách sản phẩm",
         products: products,
@@ -56,10 +75,17 @@ module.exports.index = async (req, res) => {
 module.exports.changeStatus = async (req, res) => {
     const status = req.params.status
     const id = req.params.id
+    const updatedBy = {
+        account_id: res.locals.user.id,
+        updateAt: new Date()
+    }
     await Product.updateOne({
         _id: id
     }, {
-        status: status
+        status: status,
+        $push: {
+            updatedBy: updatedBy
+        }
     })
     req.flash('success', 'cập nhật thành công !!');
     res.redirect("back")
@@ -68,6 +94,10 @@ module.exports.changeStatus = async (req, res) => {
 module.exports.changeMulti = async (req, res) => {
     const type = req.body.type
     const ids = req.body.ids.split(", ");
+    const updatedBy = {
+        account_id: res.locals.user.id,
+        updateAt: new Date()
+    }
     switch (type) {
         case "active":
             await Product.updateMany({
@@ -75,7 +105,10 @@ module.exports.changeMulti = async (req, res) => {
                     $in: ids
                 }
             }, {
-                status: "active"
+                status: "active",
+                $push: {
+                    updatedBy: updatedBy
+                }
             })
             req.flash('success', `cập nhật thành công ${ids.length} sản phẩm!!`)
             break;
@@ -85,7 +118,10 @@ module.exports.changeMulti = async (req, res) => {
                     $in: ids
                 }
             }, {
-                status: "inactive"
+                status: "inactive",
+                $push: {
+                    updatedBy: updatedBy
+                }
             })
             req.flash('success', `cập nhật thành công ${ids.length} sản phẩm!!`)
             break;
@@ -108,7 +144,10 @@ module.exports.changeMulti = async (req, res) => {
                 await Product.updateOne({
                     _id: id
                 }, {
-                    position: position
+                    position: position,
+                    $push: {
+                        updatedBy: updatedBy
+                    }
                 })
                 req.flash('success', `Đã thay đổi vị trí thành công!!`)
             }
@@ -129,7 +168,11 @@ module.exports.deleteItem = async (req, res) => {
         _id: id
     }, {
         deleted: true,
-        deletedAt: new Date()
+        // deletedAt: new Date()
+        deletedBy: {
+            account_id: res.locals.user.id,
+            deletedAt: new Date()
+        }
     })
     req.flash('success', `Đã xóa thành công sản phẩm!!`)
     res.redirect("back")
@@ -159,6 +202,9 @@ module.exports.createPost = async (req, res) => {
         req.body.position = countProducts + 1
     } else {
         req.body.position = parseInt(req.body.position)
+    }
+    req.body.createdBy = {
+        account_id: res.locals.user.id
     }
     const product = new Product(req.body)
     await product.save()
@@ -195,9 +241,18 @@ module.exports.editPatch = async (req, res) => {
     req.body.stock = parseInt(req.body.stock)
     req.body.position = parseInt(req.body.position)
     try {
+        const updatedBy = {
+            account_id: res.locals.user.id,
+            updateAt: new Date()
+        }
         await Product.updateOne({
             _id: id
-        }, req.body)
+        }, {
+            ...req.body,
+            $push: {
+                updatedBy: updatedBy
+            }
+        })
         req.flash("success", " cập nhập thành công ")
     } catch (error) {
         req.flash("error", " cập nhập thất bại ")

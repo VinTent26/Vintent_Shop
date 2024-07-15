@@ -3,6 +3,7 @@ const path = require('path');
 const methodOverride = require('method-override')
 const bodyParser = require('body-parser')
 const flash = require('express-flash')
+const moment = require('moment')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 require('dotenv').config();
@@ -10,7 +11,6 @@ const database = require("./config/database")
 const systemConfig = require("./config/system")
 const route = require("./routes/client/index.route");
 const routeAmin = require("./routes/admin/index.route");
-const multer = require('multer')
 database.connect();
 const app = express();
 app.use(methodOverride('_method'))
@@ -35,6 +35,7 @@ app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce
 //end TinyMCE
 // App Locals Variables
 app.locals.prefixAdmin = systemConfig.prefixAdmin // chỉ dùng được trong file pug
+app.locals.moment = moment
 app.use(express.static(`${__dirname}/public`))
 //route
 route(app);

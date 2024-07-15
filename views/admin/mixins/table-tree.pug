@@ -41,11 +41,10 @@ mixin table-tree(items, level = 1)
                             ) Dừng hoạt động
         
             td 
-                if(role.permissions.includes("products-category_detail"))
-                    a(
-                    href=`${prefixAdmin}/products-category/detail/${item.id}`
-                    class="btn btn-secondary btn-sm"
-                    ) Chi tiết
+                a(
+                href=`${prefixAdmin}/products-category/detail/${item.id}`
+                class="btn btn-secondary btn-sm"
+                ) Chi tiết
                 if(role.permissions.includes("products-category_edit"))
                     a(
                     href=`${prefixAdmin}/products-category/edit/${item.id}`

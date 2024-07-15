@@ -30,11 +30,11 @@ block main
                                     td #{item.title}
                                     td #{item.description}
                                     td
-                                        if(role.permissions.includes("roles_detail"))
-                                            a(
-                                                class="btn btn-secondary btn-sm"
-                                                href=`${prefixAdmin}/roles/detail/${item.id}`
-                                            ) Chi tiết
+                                        
+                                        a(
+                                            class="btn btn-secondary btn-sm"
+                                            href=`${prefixAdmin}/roles/detail/${item.id}`
+                                        ) Chi tiết
                                         if(role.permissions.includes("roles_edit"))
                                             a(
                                                 class="btn btn-warning btn-sm ml-1"
