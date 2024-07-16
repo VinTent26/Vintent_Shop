@@ -1,5 +1,7 @@
-module.exports.index = (req, res) => {
-    res.render("client/pages/home/index",{
-        pageTitle : "trang chủ"
+//[GET] /products
+module.exports.index = async (req, res) => {
+    res.render("client/pages/home/index", {
+        pageTitle: "trang chủ",
+
     });
 }
