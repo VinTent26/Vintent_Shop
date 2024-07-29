@@ -10,7 +10,7 @@ require('dotenv').config();
 const database = require("./config/database")
 const systemConfig = require("./config/system")
 const route = require("./routes/client/index.route");
-const routeAmin = require("./routes/admin/index.route");
+const routeAdmin = require("./routes/admin/index.route");
 database.connect();
 const app = express();
 app.use(methodOverride('_method'))
@@ -39,8 +39,12 @@ app.locals.moment = moment
 app.use(express.static(`${__dirname}/public`))
 //route
 route(app);
-routeAmin(app);
-
+routeAdmin(app);
+app.get("*", (req, res) => {
+  res.render("client/pages/errors/404", {
+    pageTitle: "404 not found"
+  })
+});
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
