@@ -11,6 +11,12 @@ const database = require("./config/database")
 const systemConfig = require("./config/system")
 const route = require("./routes/client/index.route");
 const routeAdmin = require("./routes/admin/index.route");
+const http = require("http")
+const {
+  Server
+} = require("socket.io")
+
+
 database.connect();
 const app = express();
 app.use(methodOverride('_method'))
@@ -21,6 +27,11 @@ const port = process.env.PORT;
 
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
+//socket.io
+const server = http.createServer(app)
+const io = new Server(server)
+global._io = io //tạo ra biến toàn cục
+//end socket
 //flash
 app.use(cookieParser('avavav'));
 app.use(session({
@@ -45,6 +56,6 @@ app.get("*", (req, res) => {
     pageTitle: "404 not found"
   })
 });
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
